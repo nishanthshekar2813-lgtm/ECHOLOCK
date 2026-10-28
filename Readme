@@ -1,0 +1,77 @@
+# EchoLock: Multi-Factor Smart Lock on Arduino
+
+EchoLock is an Arduino-based smart door lock that goes beyond a single key or PIN. It combines RFID identification with a custom knock-pattern recognition algorithm written in C. It also includes a keypad fallback and a silent duress alert, all coordinated by a state machine.
+
+## Why We Built It
+
+Most home and hostel locks rely on one thing (a key, a card, a code) that can be copied, stolen, or shared. Banks and data centers layer "something you have" with "something you know." EchoLock brings that idea down to a small embedded system.
+
+## Features
+
+- **RFID (RC522):** identifies a registered card or tag.
+- **Knock pattern:** the secret rhythm is captured as intervals between taps, buffered in an array, and compared to the enrolled sequence using a tolerance window. Slightly imperfect timing still passes, but a wrong rhythm doesn't. The matching logic is entirely our own C code, with no library.
+- **Keypad:** a PIN-based alternate path, designed for accessibility.
+- **Duress detection:** a distress input unlocks normally but triggers a silent alert, so a person forced to open the door isn't exposed.
+- **State machine:** manages transitions between idle, verified, waiting, unlocked, and timeout/reset states, with timers enforcing the allowed windows.
+- **Feedback:** servo lock, buzzer, LED, and an LCD1602 display give clear status.
+
+## Hardware
+
+| Component | Purpose |
+|-----------|---------|
+| Arduino Uno | Main controller |
+| RC522 RFID module | Card/tag identification |
+| Keypad | PIN entry (alternate path) |
+| Servo motor | Lock actuation |
+| Buzzer | Audio feedback |
+| LED | Status indicator |
+| LCD1602 | Status display |
+
+## Simulation
+
+The project runs in [Wokwi](https://wokwi.com), using VS Code with PlatformIO and the Wokwi extension, so it can be tested without physical hardware.
+
+## Getting Started
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/<your-username>/EchoLock.git
+   cd EchoLock
+   ```
+2. Open the folder in VS Code with the **PlatformIO** and **Wokwi** extensions installed.
+3. Build the project:
+   ```bash
+   pio run
+   ```
+4. Start the Wokwi simulation from VS Code.
+5. Try it out: tap the RFID card, enter the knock pattern, or use the keypad.
+
+## How the Knock Matching Works
+
+```c
+int match_pattern(int live[], int ref[], int n, int tol) {
+    for (int i = 0; i < n; i++) {
+        if (abs(live[i] - ref[i]) > tol) {
+            return 0;   // interval outside tolerance window
+        }
+    }
+    return 1;           // full sequence matched
+}
+```
+
+## Key Concepts
+
+Embedded C, sequence matching with tolerance, timer-based state machines, multi-factor access control.
+
+## Team
+
+| Name | Roll No. | Contribution |
+|------|----------|--------------|
+| Nishanth Shekar T | CB.SC.U4CSE25138 | Knock-pattern matching, duress detection, state machine |
+| Neeraj | CB.SC.U4CSE25118 | Output/actuation and system integration |
+| Sandeep | CB.SC.U4CSE25139 | RFID integration |
+| Madan | CB.SC.U4CSE25140 | Keypad alternate path |
+
+## License
+
+This project was built as an academic term project. Add a license of your choice (e.g. MIT) before publishing.
